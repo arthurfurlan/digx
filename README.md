@@ -14,3 +14,4 @@ Bash wrapper of dig command to make it easier to resolve website hosts and its a
 ## Installation
 
     $ cp digx /usr/local/bin
+    $ chmod a+x /usr/local/bin
