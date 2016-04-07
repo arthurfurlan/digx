@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (C) 2016 Arthur Furlan <afurlan@configr.com>
 #
@@ -14,6 +14,32 @@
 ## make it easier to resolve website hosts and its reverse addresses
 digx() {
   H=`echo $1 | sed -e 's,^https*://*,,' -e 's,/.*,,'`
+
+  if [[ "$2" == "ns" ]]; then
+    HA=$H
+    HC=1
+    while [ $HC -gt 0 ]; do
+      _HA=$HA
+      HA=`dig +short $HA | head -1 | sed -e 's,\.$,,'`
+      echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
+
+      if [ $? -eq 0 ]; then
+        HA=$_HA
+        break
+      fi
+    done
+
+    i=0
+    for NS in `dig $HA ns | sed -e 's,\.$,,'`; do
+      i=$(($i+1))
+      echo "dns$i: $NS"
+    done
+    
+    if [ $i -gt 0 ]; then
+      echo '--'
+    fi
+  fi
+
   echo "host: ${H}"
 
   HA=$H
@@ -21,8 +47,13 @@ digx() {
   while [ $HC -gt 0 ]; do
     HA=`dig +short $HA | head -1 | sed -e 's,\.$,,'`
     echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
+    RT=$?
 
-    if [ $? -eq 1 ]; then
+    if [[ "$HA" == "" ]]; then
+      break
+    fi
+
+    if [ $RT -eq 1 ]; then
       echo "host: ${HA}"
     else
       echo "host: ${HA}"
@@ -31,7 +62,7 @@ digx() {
   done
 
   HB=`dig +short -x $HA 2> /dev/null`
-  echo "--"
+  echo '--'
   echo "rdns: ${HB%%.}"
 }
 digx $@
