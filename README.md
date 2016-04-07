@@ -3,7 +3,7 @@ Bash wrapper of dig command to make it easier to resolve website hosts and its a
 
 ## Usage
 
-    $ digx http://www.configr.com/contact/
+    $ digx http://www.configr.com/
     host: www.configr.com
     host: configr.com
     host: 45.79.10.58
@@ -13,5 +13,5 @@ Bash wrapper of dig command to make it easier to resolve website hosts and its a
 
 ## Installation
 
-    $ cp digx /usr/local/bin
-    $ chmod a+x /usr/local/bin
+    $ cp digx.sh /usr/local/bin/digx
+    $ chmod a+x /usr/local/bin/digx

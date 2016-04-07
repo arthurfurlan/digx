@@ -1,3 +1,4 @@
+#!/bin/sh
 
 # Copyright (C) 2016 Arthur Furlan <afurlan@configr.com>
 #
@@ -33,3 +34,4 @@ digx() {
   echo "--"
   echo "rdns: ${HB%%.}"
 }
+digx $@
