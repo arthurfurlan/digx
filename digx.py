@@ -13,6 +13,7 @@
 
 from dns import resolver, reversename
 import socket
+import re
 
 
 class UsageError(Exception):
@@ -59,7 +60,9 @@ class Digx(object):
         if not args:
             raise UsageError('empty and/or missing arguments.')
 
-        self.lookup_domain = args[0]
+        # extract domain if it's an URL
+        domain = re.sub('^https?://([^/]*).*$', '\\1', args[0])
+        self.lookup_domain = domain
 
     def do_lookup(self):
 
