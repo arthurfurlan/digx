@@ -15,7 +15,56 @@
 digx() {
   H=`echo $1 | sed -e 's,^https*://*,,' -e 's,/.*,,'`
 
-  if [[ "$2" == "ns" ]]; then
+  if [[ "$2" == "txt" ]] || [[ "$2" == "text" ]]; then
+    HA=$H
+    HC=1
+    while [ $HC -gt 0 ]; do
+      _HA=$HA
+      HA=`dig +short $HA | head -1 | sed -e 's,\.$,,'`
+      echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
+
+      if [ $? -eq 0 ]; then
+        HA=$_HA
+        break
+      fi
+    done
+
+    i=0
+    dig $HA txt | sed -e 's,\.$,,' | while read TX; do
+      i=$(($i+1))
+      echo "text: $TX"
+    done
+    
+    echo '--'
+  fi
+
+
+  if [[ "$2" == "mx" ]] || [[ "$2" == "mail" ]]; then
+    HA=$H
+    HC=1
+    while [ $HC -gt 0 ]; do
+      _HA=$HA
+      HA=`dig +short $HA | head -1 | sed -e 's,\.$,,'`
+      echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
+
+      if [ $? -eq 0 ]; then
+        HA=$_HA
+        break
+      fi
+    done
+
+    i=0
+    for MX in `dig $HA mx | cut -d ' ' -f 2 | sed -e 's,\.$,,'`; do
+      i=$(($i+1))
+      echo "mail: $MX"
+    done
+    
+    if [ $i -gt 0 ]; then
+      echo '--'
+    fi
+  fi
+
+  if [[ "$2" == "ns" ]] || [[ "$2" == "name" ]]; then
     HA=$H
     HC=1
     while [ $HC -gt 0 ]; do
@@ -32,7 +81,7 @@ digx() {
     i=0
     for NS in `dig $HA ns | sed -e 's,\.$,,'`; do
       i=$(($i+1))
-      echo "dns$i: $NS"
+      echo "name: $NS"
     done
     
     if [ $i -gt 0 ]; then
