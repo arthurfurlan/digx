@@ -93,25 +93,43 @@ digx() {
 
   HA=$H
   HC=1
-  while [ $HC -gt 0 ]; do
-    HA=`dig +short $HA | head -1 | sed -e 's,\.$,,'`
-    echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
-    RT=$?
+  
+  echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
+  RT=$?
 
-    if [[ "$HA" == "" ]]; then
-      break
-    fi
+  if [ $RT -eq 1 ]; then
+    while [ $HC -gt 0 ]; do
+      HA=`dig +short $HA | sed -e 's,\.$,,'`
+      echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
+      RT=$?
 
-    if [ $RT -eq 1 ]; then
-      echo "host: ${HA}"
-    else
-      echo "host: ${HA}"
-      break
-    fi
-  done
+      if [[ "$HA" == "" ]]; then
+        break
+      fi
 
-  HB=`dig +short -x $HA 2> /dev/null`
+      if [ $RT -eq 1 ]; then
+        echo "host: ${HA}"
+      else
+        echo -n 'host:'
+
+        RS=""
+        for HC in $HA; do
+          RS="${RS}, ${HC}"
+        done
+        echo "${RS}" | sed -e 's/^\s*\,//g'
+        break
+      fi
+    done
+  fi
+
   echo '--'
-  echo "rdns: ${HB%%.}"
+  echo -n 'rdns:'
+
+  RS=""
+  for HC in $HA; do
+    HB=`dig +short -x $HC 2> /dev/null`
+    RS="${RS}, ${HB%%.}"
+  done
+  echo "${RS}" | sed -e 's/^\s*\,//g'
 }
 digx $@
