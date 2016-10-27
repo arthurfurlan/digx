@@ -97,10 +97,11 @@ digx() {
   echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
   RT=$?
 
+  HL=""
   if [ $RT -eq 1 ]; then
     while [ $HC -gt 0 ]; do
       HA=`dig +short $HA | sed -e 's,\.$,,'`
-      echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
+      echo $HA | grep -e '\([0-9]\{1,3\}\.[0-9]\{1,3\} \)\+' &> /dev/null
       RT=$?
 
       if [[ "$HA" == "" ]]; then
@@ -108,7 +109,8 @@ digx() {
       fi
 
       if [ $RT -eq 1 ]; then
-        echo "host: ${HA}"
+        _HA=`echo ${HA} | head -1 | cut -d ' ' -f 1`
+        echo "host: ${_HA}"
       else
         echo -n 'host:'
 
@@ -119,14 +121,19 @@ digx() {
         echo "${RS}" | sed -e 's/^\s*\,//g'
         break
       fi
+      HL="${HA}"
     done
+  fi
+
+  if [[ "$HL" == "" ]]; then
+    HL="${HA}"
   fi
 
   echo '--'
   echo -n 'rdns:'
 
   RS=""
-  for HC in $HA; do
+  for HC in $HL; do
     HB=`dig +short -x $HC 2> /dev/null`
     RS="${RS}, ${HB%%.}"
   done
