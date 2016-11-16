@@ -21,6 +21,10 @@ digx() {
     while [ $HC -gt 0 ]; do
       _HA=$HA
       HA=`dig +short $HA | head -1 | sed -e 's,\.$,,'`
+      if [[ "$HA" == "" ]]; then
+        HA=$H
+        break
+      fi
       echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
 
       if [ $? -eq 0 ]; then
@@ -45,6 +49,10 @@ digx() {
     while [ $HC -gt 0 ]; do
       _HA=$HA
       HA=`dig +short $HA | head -1 | sed -e 's,\.$,,'`
+      if [[ "$HA" == "" ]]; then
+        HA=$H
+        break
+      fi
       echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
 
       if [ $? -eq 0 ]; then
@@ -70,6 +78,10 @@ digx() {
     while [ $HC -gt 0 ]; do
       _HA=$HA
       HA=`dig +short $HA | head -1 | sed -e 's,\.$,,'`
+      if [[ "$HA" == "" ]]; then
+        HA=$H
+        break
+      fi
       echo $HA | grep -e '[0-9]\{1,3\}\.[0-9]\{1,3\}' &> /dev/null
 
       if [ $? -eq 0 ]; then
