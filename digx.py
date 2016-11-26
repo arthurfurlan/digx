@@ -42,17 +42,17 @@ class Digx(object):
     def parse_args(self, args):
 
         # retrieve domain name entries
-        if 'ns' in args:
+        if 'ns' in args or 'name' in args:
             self.retrieve_name = True
             args.remove('ns')
 
         # retrieve domain mail entries
-        if 'mx' in args:
+        if 'mx' in args or 'mail' in args:
             self.retrieve_mail = True
             args.remove('mx')
 
         # retrieve domain text entries
-        if 'txt' in args:
+        if 'txt' in args or 'text' in args:
             self.retrieve_text = True
             args.remove('txt')
 
@@ -72,7 +72,7 @@ class Digx(object):
         for rdata in query.response.answer:
             hosts.append(str(rdata.name).rstrip('.'))
 
-        # lookup final address and reverse dns
+        # lookup all final addresses and its reverse dns
         addr = []
         rdns = []
         query = resolver.query(hosts[-1], 'a')
@@ -96,7 +96,7 @@ class Digx(object):
                 print 'mail: %s' % str(rdata).rstrip('.').split(' ')[1]
             print '--'
 
-        # do retrieve domain serv entries
+        # do retrieve domain text entries
         if self.retrieve_text:
             query = resolver.query(hosts[-1], 'txt')
             for rdata in query.response.answer[0].items:
@@ -104,15 +104,11 @@ class Digx(object):
             print '--'
 
         # print hosts, address and reverse dns
-        hosts.extend(addr)
         for host in hosts:
-            print 'host: %s' % host
+            print 'host: %s' % (host)
+        print 'host: %s' % ', '.join(addr)
         print '--'
-        for k, v in enumerate(rdns):
-            if len(rdns) > 1:
-                print 'rnds: %s (%s)' % (v, addr[k])
-            else:
-                print 'rnds: %s' % v
+        print 'rnds: %s' % ', '.join(rdns)
 
 
 if __name__ == '__main__':
