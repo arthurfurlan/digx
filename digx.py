@@ -49,6 +49,24 @@ class Digx(object):
         self.parse_args(args)
         self.do_lookup()
 
+    def query(self, *args, **kwargs):
+        ''' Perform and cleanup DNS queries. '''
+
+        hosts = []
+
+        try:
+            query = self.resolver.query(*args)
+            for rdata in query.response.answer:
+                if kwargs.get('fqdn'): 
+                    hosts.append(str(rdata.name).rstrip('.'))
+                else:
+                    for item in rdata.items:
+                        hosts.append(str(item).rstrip('.'))
+        except resolver.NXDOMAIN:
+            pass
+
+        return hosts
+
     def display_usage(self):
         ''' Display the correct "digx" usage. @TODO '''
 
@@ -84,9 +102,7 @@ class Digx(object):
             try:
                 socket.inet_aton(nameserver)
             except socket.error:
-                query = self.resolver.query(nameserver, 'a')
-                for rdata in query.response.answer[0].items:
-                    nameserver = str(rdata).rstrip('.')
+                nameserver = self.query(nameserver, 'a')[0]
             self.resolver.nameservers = [nameserver]
 
         # empty and/or missing arguments
@@ -101,56 +117,47 @@ class Digx(object):
         ''' Execute the lookups based on the variales of "parse_args". '''
 
         hosts = []
-        addr = []
-        rdns = []
+        addrs = []
+        rdnss = []
         try:
             # confirm that lookup_domain is a valid IP address or except...
             socket.inet_aton(self.lookup_domain)
-            addr = [self.lookup_domain]
-            value = reversename.from_address(self.lookup_domain)
-            rdns = [str(self.resolver.query(value, 'PTR')[0]).rstrip('.')]
+            addrs = [self.lookup_domain]
+            rdnss = self.query(reversename.from_address(self.lookup_domain), 'ptr')
         except socket.error:
             # lookup sequence of all domain names
-            query = self.resolver.query(self.lookup_domain)
-            for rdata in query.response.answer:
-                hosts.append(str(rdata.name).rstrip('.'))
+            hosts = self.query(self.lookup_domain, fqdn=True)
 
             # lookup all final addresses and its reverse dns
-            query = self.resolver.query(hosts[-1], 'a')
-            for rdata in query.response.answer[0].items:
-                value = str(rdata).rstrip('.')  # pylint: disable=R0204
-                addr.append(value)
-                value = reversename.from_address(value)
-                value = str(self.resolver.query(value, 'PTR')[0]).rstrip('.')
-                rdns.append(value)
+            if hosts:
+                for value in self.query(hosts[-1], 'a'):
+                    addrs.append(value)
+                    rdnss.extend(self.query(reversename.from_address(value), 'ptr'))
 
         # do retrieve domain name entries
-        if self.retrieve_name:
-            query = self.resolver.query(hosts[-1], 'ns')
-            for rdata in query.response.answer[0].items:
-                print('name: %s' % str(rdata).rstrip('.'))
+        if hosts and self.retrieve_name:
+            for value in self.query(hosts[-1], 'ns'):
+                print('name: %s' % value)
             print('--')
 
         # do retrieve domain mail entries
-        if self.retrieve_mail:
-            query = self.resolver.query(hosts[-1], 'mx')
-            for rdata in query.response.answer[0].items:
-                print('mail: %s' % str(rdata).rstrip('.').split(' ')[1])
+        if hosts and self.retrieve_mail:
+            for value in self.query(hosts[-1], 'mx'):
+                print('mail: %s' % value.split(' ')[1])
             print('--')
 
         # do retrieve domain text entries
-        if self.retrieve_text:
-            query = self.resolver.query(hosts[-1], 'txt')
-            for rdata in query.response.answer[0].items:
-                print('text: %s' % str(rdata).rstrip('.'))
+        if hosts and self.retrieve_text:
+            for value in self.query(hosts[-1], 'txt'):
+                print('text: %s' % value)
             print('--')
 
         # print hosts, address and reverse dns
         for host in hosts:
             print('host: %s' % (host))
-        print('host: %s' % ', '.join(addr))
+        print('host: %s' % ', '.join(addrs))
         print('--')
-        print('rnds: %s' % ', '.join(rdns))
+        print('rdns: %s' % ', '.join(rdnss))
 
 
 if __name__ == '__main__':
