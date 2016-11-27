@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2016 Arthur Furlan <afurlan@configr.com>
@@ -32,6 +33,9 @@ class Digx(object):
         self.retrieve_serv = False
         self.lookup_domain = ''
 
+        # override default settings
+        self.resolver = resolver.Resolver()
+
     def run(self, args):
         retval = self.parse_args(args)
         self.do_lookup()
@@ -56,6 +60,23 @@ class Digx(object):
             self.retrieve_text = True
             args.remove('txt')
 
+        # use specific nameserver if given
+        nameserver = None
+        for a in args:
+            if a.startswith('@'):
+                nameserver = a[1:]
+                break
+        if nameserver:
+            print 'rsvr: %s' % nameserver
+            print '--'
+            try:
+                socket.inet_aton(nameserver)
+            except socket.error:
+                query = self.resolver.query(nameserver, 'a')
+                for rdata in query.response.answer[0].items:
+                    nameserver = str(rdata).rstrip('.')
+            self.resolver.nameservers = [nameserver]
+
         # empty and/or missing arguments
         if not args:
             raise UsageError('empty and/or missing arguments.')
@@ -67,7 +88,7 @@ class Digx(object):
     def do_lookup(self):
 
         # lookup sequence of all domain names
-        query = resolver.query(self.lookup_domain)
+        query = self.resolver.query(self.lookup_domain)
         hosts = []
         for rdata in query.response.answer:
             hosts.append(str(rdata.name).rstrip('.'))
@@ -75,30 +96,30 @@ class Digx(object):
         # lookup all final addresses and its reverse dns
         addr = []
         rdns = []
-        query = resolver.query(hosts[-1], 'a')
+        query = self.resolver.query(hosts[-1], 'a')
         for rdata in query.response.answer[0].items:
             value = str(rdata).rstrip('.')
             addr.append(value)
             value = reversename.from_address(value)
-            rdns.append(str(resolver.query(value, 'PTR')[0]).rstrip('.'))
+            rdns.append(str(self.resolver.query(value, 'PTR')[0]).rstrip('.'))
 
         # do retrieve domain name entries
         if self.retrieve_name:
-            query = resolver.query(hosts[-1], 'ns')
+            query = self.resolver.query(hosts[-1], 'ns')
             for rdata in query.response.answer[0].items:
                 print 'name: %s' % str(rdata).rstrip('.')
             print '--'
 
         # do retrieve domain mail entries
         if self.retrieve_mail:
-            query = resolver.query(hosts[-1], 'mx')
+            query = self.resolver.query(hosts[-1], 'mx')
             for rdata in query.response.answer[0].items:
                 print 'mail: %s' % str(rdata).rstrip('.').split(' ')[1]
             print '--'
 
         # do retrieve domain text entries
         if self.retrieve_text:
-            query = resolver.query(hosts[-1], 'txt')
+            query = self.resolver.query(hosts[-1], 'txt')
             for rdata in query.response.answer[0].items:
                 print 'text: %s' % str(rdata).rstrip('.')
             print '--'
