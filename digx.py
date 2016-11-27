@@ -101,21 +101,29 @@ class Digx(object):
     def do_lookup(self):
         ''' Execute the lookups based on the variales of "parse_args". '''
 
-        # lookup sequence of all domain names
-        query = self.resolver.query(self.lookup_domain)
         hosts = []
-        for rdata in query.response.answer:
-            hosts.append(str(rdata.name).rstrip('.'))
-
-        # lookup all final addresses and its reverse dns
         addr = []
         rdns = []
-        query = self.resolver.query(hosts[-1], 'a')
-        for rdata in query.response.answer[0].items:
-            value = str(rdata).rstrip('.')
-            addr.append(value)
-            value = reversename.from_address(value)
-            rdns.append(str(self.resolver.query(value, 'PTR')[0]).rstrip('.'))
+        try:
+            # confirm that lookup_domain is a valid IP address or except...
+            socket.inet_aton(self.lookup_domain)
+            addr = [self.lookup_domain]
+            value = reversename.from_address(self.lookup_domain)
+            rdns = [str(self.resolver.query(value, 'PTR')[0]).rstrip('.')]
+        except socket.error:
+            # lookup sequence of all domain names
+            query = self.resolver.query(self.lookup_domain)
+            for rdata in query.response.answer:
+                hosts.append(str(rdata.name).rstrip('.'))
+
+            # lookup all final addresses and its reverse dns
+            query = self.resolver.query(hosts[-1], 'a')
+            for rdata in query.response.answer[0].items:
+                value = str(rdata).rstrip('.')
+                addr.append(value)
+                value = reversename.from_address(value)
+                value = str(self.resolver.query(value, 'PTR')[0]).rstrip('.')
+                rdns.append(value)
 
         # do retrieve domain name entries
         if self.retrieve_name:
