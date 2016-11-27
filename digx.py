@@ -119,7 +119,7 @@ class Digx(object):
             # lookup all final addresses and its reverse dns
             query = self.resolver.query(hosts[-1], 'a')
             for rdata in query.response.answer[0].items:
-                value = str(rdata).rstrip('.')
+                value = str(rdata).rstrip('.')  # pylint: disable=R0204
                 addr.append(value)
                 value = reversename.from_address(value)
                 value = str(self.resolver.query(value, 'PTR')[0]).rstrip('.')
@@ -157,7 +157,7 @@ class Digx(object):
 if __name__ == '__main__':
     import sys
 
-    digx = Digx() # pylint: disable=C0103
+    digx = Digx()  # pylint: disable=C0103
     try:
         sys.exit(digx.run(sys.argv[1:]))
     except UsageError, ex:
