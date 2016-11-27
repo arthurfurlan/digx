@@ -12,9 +12,9 @@
 # /usr/share/common-licenses/GPL-2
 
 '''
-Digx is command line script used as a smarter wrapper to "dig" command
-that uses the same syntax of the original command but automatically does
-additional DNS queries in order to save time and give contextual answers.
+Digx is command line script used as a smarter wrapper to "dig" command that
+uses the same syntax of the original command but automatically does additional
+DNS queries in order to save time and give a more contextual answer.
 '''
 
 import re
@@ -28,7 +28,6 @@ class UsageError(Exception):
     pass
 
 
-# make it easier to resolve website hosts and its reverse addresses
 class Digx(object):
     ''' Below you can find all the logic behind "digx" command. '''
 
@@ -53,7 +52,7 @@ class Digx(object):
     def display_usage(self):
         ''' Display the correct "digx" usage. @TODO '''
 
-        print '%s usage: @TODO' % self.__class__.__name__.lower()
+        print('%s usage: @TODO' % self.__class__.__name__.lower())
 
     def parse_args(self, args):
         '''Parse the command line arguments and turn them into variables. '''
@@ -80,8 +79,8 @@ class Digx(object):
                 nameserver = arg[1:]
                 break
         if nameserver:
-            print 'rsvr: %s' % nameserver
-            print '--'
+            print('rsvr: %s' % nameserver)
+            print('--')
             try:
                 socket.inet_aton(nameserver)
             except socket.error:
@@ -129,29 +128,29 @@ class Digx(object):
         if self.retrieve_name:
             query = self.resolver.query(hosts[-1], 'ns')
             for rdata in query.response.answer[0].items:
-                print 'name: %s' % str(rdata).rstrip('.')
-            print '--'
+                print('name: %s' % str(rdata).rstrip('.'))
+            print('--')
 
         # do retrieve domain mail entries
         if self.retrieve_mail:
             query = self.resolver.query(hosts[-1], 'mx')
             for rdata in query.response.answer[0].items:
-                print 'mail: %s' % str(rdata).rstrip('.').split(' ')[1]
-            print '--'
+                print('mail: %s' % str(rdata).rstrip('.').split(' ')[1])
+            print('--')
 
         # do retrieve domain text entries
         if self.retrieve_text:
             query = self.resolver.query(hosts[-1], 'txt')
             for rdata in query.response.answer[0].items:
-                print 'text: %s' % str(rdata).rstrip('.')
-            print '--'
+                print('text: %s' % str(rdata).rstrip('.'))
+            print('--')
 
         # print hosts, address and reverse dns
         for host in hosts:
-            print 'host: %s' % (host)
-        print 'host: %s' % ', '.join(addr)
-        print '--'
-        print 'rnds: %s' % ', '.join(rdns)
+            print('host: %s' % (host))
+        print('host: %s' % ', '.join(addr))
+        print('--')
+        print('rnds: %s' % ', '.join(rdns))
 
 
 if __name__ == '__main__':
@@ -160,6 +159,6 @@ if __name__ == '__main__':
     digx = Digx()  # pylint: disable=C0103
     try:
         sys.exit(digx.run(sys.argv[1:]))
-    except UsageError, ex:
+    except UsageError as ex:
         digx.display_usage()
         sys.exit(digx.RETVAL_ERROR_USAGE)
