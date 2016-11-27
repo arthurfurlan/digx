@@ -5,28 +5,29 @@ Digx is command line script used as a smarter wrapper to "dig" command that uses
 
 Retrieve the current IP address and its associated reverse address
 
-    $ digx http://www.configr.com/planos/
-    host: www.configr.com
-    host: configr.com
-    host: 45.79.10.58
+    $ digx www.acidezfeminina.com.br
+    host: www.acidezfeminina.com.br
+    host: acidezfeminina.com.br
+    host: 45.79.212.127
     --
-    rdns: monty.confi.gr
+    rnds: cloud288.configrapp.com
 
 
 Retrieve the current IP address, DNS nameservers and its associated reverse address
 
-    $ digx http://www.configr.com/planos/ ns
+    $ digx http://www.acidezfeminina.com.br ns
     name: ns2.configr.com
     name: ns1.configr.com
     --
-    host: www.configr.com
-    host: configr.com
-    host: 45.79.10.58
+    host: www.acidezfeminina.com.br
+    host: acidezfeminina.com.br
+    host: 45.79.212.127
     --
-    rdns: monty.confi.gr
+    rnds: cloud288.configrapp.com
 
 
 ## Installation
 
+    $ pip install -r requirements.txt
     $ cp digx.py /usr/local/bin/digx
     $ chmod a+x /usr/local/bin/digx
