@@ -53,7 +53,7 @@ class Digx(object):
     def display_usage(self):
         ''' Display the correct "digx" usage. @TODO '''
 
-        print 'USAGE: @TODO'
+        print '%s usage: @TODO' % self.__class__.__name__.lower()
 
     def parse_args(self, args):
         '''Parse the command line arguments and turn them into variables. '''
@@ -157,11 +157,9 @@ class Digx(object):
 if __name__ == '__main__':
     import sys
 
-    args = sys.argv[1:]
-    digx = Digx()
-
+    digx = Digx() # pylint: disable=C0103
     try:
-        sys.exit(digx.run(args))
+        sys.exit(digx.run(sys.argv[1:]))
     except UsageError, ex:
         digx.display_usage()
-        sys.exit(Digx.RETVAL_ERROR_USAGE)
+        sys.exit(digx.RETVAL_ERROR_USAGE)
