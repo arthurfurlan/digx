@@ -1,5 +1,5 @@
 # digx
-Bash wrapper of dig command to make it easier to resolve website hosts and its associated reverse addresses
+Digx is command line script used as a smarter wrapper to "dig" command that uses the same syntax of the original command but automatically does additional DNS queries in order to save time and give a more contextual answer.
 
 ## Usage
 
