@@ -11,17 +11,26 @@
 # On Debian systems, you can find the full text of the license in
 # /usr/share/common-licenses/GPL-2
 
-from dns import resolver, reversename
-import socket
+'''
+Digx is command line script used as a smarter wrapper to "dig" command
+that uses the same syntax of the original command but automatically does
+additional DNS queries in order to save time and give contextual answers.
+'''
+
 import re
+import socket
+from dns import resolver, reversename
 
 
 class UsageError(Exception):
+    ''' Exception used to detect an invalid usage error. '''
+
     pass
 
 
 # make it easier to resolve website hosts and its reverse addresses
 class Digx(object):
+    ''' Below you can find all the logic behind "digx" command. '''
 
     RETVAL_ERROR_USAGE = 1
 
@@ -36,13 +45,18 @@ class Digx(object):
         self.resolver = resolver.Resolver()
 
     def run(self, args):
-        retval = self.parse_args(args)
+        ''' Parse command arguments and execute as desired. '''
+
+        self.parse_args(args)
         self.do_lookup()
 
     def display_usage(self):
+        ''' Display the correct "digx" usage. @TODO '''
+
         print 'USAGE: @TODO'
 
     def parse_args(self, args):
+        '''Parse the command line arguments and turn them into variables. '''
 
         # retrieve domain name entries
         if 'ns' in args or 'name' in args:
@@ -61,9 +75,9 @@ class Digx(object):
 
         # use specific nameserver if given
         nameserver = None
-        for a in args:
-            if a.startswith('@'):
-                nameserver = a[1:]
+        for arg in args:
+            if arg.startswith('@'):
+                nameserver = arg[1:]
                 break
         if nameserver:
             print 'rsvr: %s' % nameserver
@@ -85,6 +99,7 @@ class Digx(object):
         self.lookup_domain = domain
 
     def do_lookup(self):
+        ''' Execute the lookups based on the variales of "parse_args". '''
 
         # lookup sequence of all domain names
         query = self.resolver.query(self.lookup_domain)
@@ -138,7 +153,7 @@ if __name__ == '__main__':
     digx = Digx()
 
     try:
-        digx.run(args)
+        sys.exit(digx.run(args))
     except UsageError, ex:
         digx.display_usage()
         sys.exit(Digx.RETVAL_ERROR_USAGE)
