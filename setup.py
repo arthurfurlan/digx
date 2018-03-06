@@ -4,14 +4,17 @@
 import os
 import re
 
-import pypandoc
 from setuptools import find_packages, setup
+
+try:
+    import pypandoc
+    readme = pypandoc.convert('README.md', 'rst')
+except (IOError, ImportError):
+    readme = ''
 
 # package variables
 package = 'digx'
-readme = pypandoc.convert('README.md', 'rst')
 
-# dynamic package info
 init_py = open(os.path.join(package, '__init__.py')).read()
 version = re.search(
     "^__version__ = ['\"]([^'\"]+)['\"]", init_py, re.MULTILINE).group(1)
