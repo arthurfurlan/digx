@@ -28,6 +28,4 @@ Retrieve the current IP address, DNS nameservers and its associated reverse addr
 
 ## Installation
 
-    $ pip install -r requirements.txt
-    $ cp digx.py /usr/local/bin/digx
-    $ chmod a+x /usr/local/bin/digx
+    $ pip install git+https://github.com/arthurfurlan/digx.git

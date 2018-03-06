@@ -57,7 +57,7 @@ class Digx(object):
         try:
             query = self.resolver.query(*args)
             for rdata in query.response.answer:
-                if kwargs.get('fqdn'): 
+                if kwargs.get('fqdn'):
                     hosts.append(str(rdata.name).rstrip('.'))
                 else:
                     for item in rdata.items:
@@ -123,7 +123,8 @@ class Digx(object):
             # confirm that lookup_domain is a valid IP address or except...
             socket.inet_aton(self.lookup_domain)
             addrs = [self.lookup_domain]
-            rdnss = self.query(reversename.from_address(self.lookup_domain), 'ptr')
+            rdnss = self.query(
+                reversename.from_address(self.lookup_domain), 'ptr')
         except socket.error:
             # lookup sequence of all domain names
             hosts = self.query(self.lookup_domain, fqdn=True)
@@ -132,7 +133,8 @@ class Digx(object):
             if hosts:
                 for value in self.query(hosts[-1], 'a'):
                     addrs.append(value)
-                    rdnss.extend(self.query(reversename.from_address(value), 'ptr'))
+                    rdnss.extend(
+                        self.query(reversename.from_address(value), 'ptr'))
 
         # do retrieve domain name entries
         if hosts and self.retrieve_name:
@@ -160,12 +162,17 @@ class Digx(object):
         print('rdns: %s' % ', '.join(rdnss))
 
 
-if __name__ == '__main__':
+def cli():
     import sys
 
     digx = Digx()  # pylint: disable=C0103
+
     try:
         sys.exit(digx.run(sys.argv[1:]))
     except UsageError as ex:
         digx.display_usage()
         sys.exit(digx.RETVAL_ERROR_USAGE)
+
+
+if __name__ == '__main__':
+    cli()
